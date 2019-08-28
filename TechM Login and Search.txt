@@ -1,0 +1,776 @@
+SPRING BOOT,HIBERNATE
++++++++++++++++++++++
+
+vehicleController.java
+**********************
+package com.example.demo.vehicleController;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import com.example.demo.vehicleException.vehicleException;
+import com.example.demo.vehicleService.vehicleService;
+
+@RestController
+@RequestMapping("/vehiclePortal")
+@CrossOrigin(origins="http://localhost:4208",allowedHeaders="*")
+public class vehicleController {
+	
+	@Autowired
+	private vehicleService vehicleservice;
+
+	public void setVehicleservice(vehicleService vehicleservice) {
+		this.vehicleservice = vehicleservice;
+	}
+	
+	@GetMapping("/userDetails")
+	public List userList() {
+		return vehicleservice.userList();
+		
+	}
+	
+	@PostMapping("/userLogin/{userid}/{userpassword}")
+	public boolean validateLogin(@PathVariable (name="userid") int userid,@PathVariable (name="userpassword") String userpassword) throws vehicleException {
+		return vehicleservice.validateLogin(userid,userpassword);
+	}
+	
+	@GetMapping("/vehicleDetails")
+	public List vehicleList() {
+		return vehicleservice.vehicleList();
+	}
+	
+	
+	@PostMapping("/searchVehicle/{modelline}")
+	public List searchVehicle(@PathVariable (name="modelline") String modelline) {
+		return vehicleservice.searchVehicle(modelline);
+	}
+	
+	@GetMapping("/models")
+	public List listModel() {
+		return vehicleservice.listModel();
+	}
+	
+
+}
+
+userDetails.java
+*****************
+package com.example.demo.vehicleEntity;
+
+import javax.persistence.*;
+
+@Entity
+@Table(name="TBL_USER")
+public class userDetails {
+	
+	@Id
+	@Column(name="user_id")
+	private int userid;
+	
+	@Column(name="user_password")
+	private String userpassword;
+	
+	@Column(name="user_name")
+	private String username;
+	
+	@Column(name="user_address")
+	private String useraddress;
+
+	public int getUserid() {
+		return userid;
+	}
+
+	public void setUserid(int userid) {
+		this.userid = userid;
+	}
+
+	public String getUserpassword() {
+		return userpassword;
+	}
+
+	public void setUserpassword(String userpassword) {
+		this.userpassword = userpassword;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getUseraddress() {
+		return useraddress;
+	}
+
+	public void setUseraddress(String useraddress) {
+		this.useraddress = useraddress;
+	}
+
+	@Override
+	public String toString() {
+		return "userDetails [userid=" + userid + ", userpassword=" + userpassword + ", username=" + username
+				+ ", useraddress=" + useraddress + "]";
+	}
+
+	public userDetails() {
+	}
+
+	
+	public userDetails(int userid, String userpassword, String username, String useraddress) {
+		this.userid = userid;
+		this.userpassword = userpassword;
+		this.username = username;
+		this.useraddress = useraddress;
+	}
+	
+}
+
+vehicleDetails.java
+*******************
+package com.example.demo.vehicleEntity;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="TBL_VEHICLE")
+public class vehicleDetails {
+	
+	@Id
+	@Column(name="vin")
+	private String vin;
+	
+	@Column(name="model_line")
+	private String modelline;
+
+	@Column(name="model_year")
+	private int modelyear;
+
+	@Column(name="interior_color")
+	private String interiorcolor;
+	
+	@Column(name="exterior_color")
+	private String exteriorcolor;
+	
+	@Column(name="drive_train")
+	private String drivetrain;
+
+	public String getVin() {
+		return vin;
+	}
+
+	public void setVin(String vin) {
+		this.vin = vin;
+	}
+
+	public String getModelline() {
+		return modelline;
+	}
+
+	public void setModelline(String modelline) {
+		this.modelline = modelline;
+	}
+
+	public int getModelyear() {
+		return modelyear;
+	}
+
+	public void setModelyear(int modelyear) {
+		this.modelyear = modelyear;
+	}
+
+	public String getInteriorcolor() {
+		return interiorcolor;
+	}
+
+	public void setInteriorcolor(String interiorcolor) {
+		this.interiorcolor = interiorcolor;
+	}
+
+	public String getExteriorcolor() {
+		return exteriorcolor;
+	}
+
+	public void setExteriorcolor(String exteriorcolor) {
+		this.exteriorcolor = exteriorcolor;
+	}
+
+	public String getDrivertrain() {
+		return drivetrain;
+	}
+
+	public void setDrivertrain(String drivertrain) {
+		this.drivetrain = drivertrain;
+	}
+
+	public vehicleDetails(String vin, String modelline, int modelyear, String interiorcolor, String exteriorcolor,
+			String drivertrain) {
+		this.vin = vin;
+		this.modelline = modelline;
+		this.modelyear = modelyear;
+		this.interiorcolor = interiorcolor;
+		this.exteriorcolor = exteriorcolor;
+		this.drivetrain = drivertrain;
+	}
+
+	public vehicleDetails() {
+	}
+
+	@Override
+	public String toString() {
+		return "vehicleDetails [vin=" + vin + ", modelline=" + modelline + ", modelyear=" + modelyear
+				+ ", interiorcolor=" + interiorcolor + ", exteriorcolor=" + exteriorcolor + ", drivertrain="
+				+ drivetrain + "]";
+	}
+	
+	
+
+}
+
+vehicleException.java
+**********************
+package com.example.demo.vehicleException;
+
+public class vehicleException extends Exception {
+	public vehicleException(String message) {
+		super(message);
+	}
+
+}
+
+vehicleRepository.java
+**********************
+package com.example.demo.vehicleRepository;
+
+import java.util.List;
+
+import com.example.demo.vehicleEntity.userDetails;
+import com.example.demo.vehicleEntity.vehicleDetails;
+import com.example.demo.vehicleException.vehicleException;
+
+public interface vehicleRepository {
+
+	public boolean validateLogin(int userid,String userpassword) throws vehicleException;
+
+	public List userList();
+
+	public List searchVehicle(String modelline);
+
+	public List vehicleList();
+
+	public List listModel();
+
+}
+
+vehicleRepositoryImpl.java
+**************************
+package com.example.demo.vehicleRepository;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import org.hibernate.Query;
+import org.springframework.stereotype.Repository;
+
+import com.example.demo.vehicleEntity.userDetails;
+import com.example.demo.vehicleEntity.vehicleDetails;
+import com.example.demo.vehicleException.vehicleException;
+
+@Repository
+public class vehicleRepositoryImpl implements vehicleRepository {
+	
+	@PersistenceContext
+	private EntityManager entitymanager;
+
+	@Override
+	public boolean validateLogin(int userid,String userpassword) throws vehicleException {
+		boolean res=false;
+		try {
+			Query query=(Query) entitymanager.createQuery("from userDetails where userid=:id and userpassword=:pass");
+			query.setParameter("id",userid);
+			query.setParameter("pass",userpassword);
+			List list=query.list();
+			if(list.size()>0) 
+				res=true;
+		}
+		catch(Exception e) {
+			throw new vehicleException("Invalid User");
+		}
+		return res;
+	}
+
+	@Override
+	public List userList() {
+List list=entitymanager.createQuery("from userDetails",userDetails.class).getResultList();
+		return list;
+	}
+
+	@Override
+	public List searchVehicle(String modelline) {
+		Query query=(Query) entitymanager.createQuery("from vehicleDetails where modelline=:model");
+		query.setParameter("model",modelline);
+        List l=query.list();
+		return l;
+	}
+
+	@Override
+	public List vehicleList() {
+		List list=entitymanager.createQuery("from vehicleDetails",vehicleDetails.class).getResultList();
+		return list;
+	}
+
+	@Override
+	public List listModel() {
+		Query query=(Query) entitymanager.createQuery("select distinct modelline from vehicleDetails");
+List list=query.list();
+		return list;
+	}
+
+}
+
+vehicleService.java
+*******************
+package com.example.demo.vehicleService;
+
+import java.util.List;
+
+import com.example.demo.vehicleEntity.userDetails;
+import com.example.demo.vehicleEntity.vehicleDetails;
+import com.example.demo.vehicleException.vehicleException;
+
+public interface vehicleService {
+
+	public boolean validateLogin(int userid,String userpassword) throws vehicleException;
+
+	public List userList();
+
+	public List searchVehicle(String modelline);
+
+	public List vehicleList();
+
+	public List listModel();
+
+}
+
+vehicleServiceImpl.java
+************************
+package com.example.demo.vehicleService;
+
+import java.util.List;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.example.demo.vehicleEntity.userDetails;
+import com.example.demo.vehicleEntity.vehicleDetails;
+import com.example.demo.vehicleException.vehicleException;
+import com.example.demo.vehicleRepository.vehicleRepository;
+
+@Service
+@Transactional
+public class vehicleServiceImpl implements vehicleService {
+	
+	@Autowired
+	private vehicleRepository vehiclerepository;
+
+	public void setVehiclerepository(vehicleRepository vehiclerepository) {
+		this.vehiclerepository = vehiclerepository;
+	}
+
+	@Override
+	public boolean validateLogin(int userid,String userpassword) throws vehicleException {
+		return vehiclerepository.validateLogin(userid,userpassword);
+	}
+
+	@Override
+	public List userList() {
+		return vehiclerepository.userList();
+	}
+
+	@Override
+	public List searchVehicle(String modelline) {
+		return vehiclerepository.searchVehicle(modelline);
+	}
+
+	@Override
+	public List vehicleList() {
+		return vehiclerepository.vehicleList();
+	}
+
+	@Override
+	public List listModel() {
+		// TODO Auto-generated method stub
+		return vehiclerepository.listModel();
+	}
+	
+	
+
+}
+
+VehicleManagementSystemApplication.java
+***************************************
+package com.example.demo;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import com.example.demo.vehicleRepository.vehicleRepository;
+
+@SpringBootApplication
+public class VehicleManagementSystemApplication implements CommandLineRunner{
+	
+	private vehicleRepository vehicleRepository;
+	
+	public static void main(String[] args) {
+		SpringApplication.run(VehicleManagementSystemApplication.class, args);
+	}
+		@Bean
+		public WebMvcConfigurer configurer(){
+		  return new WebMvcConfigurer(){
+		    @Override
+		    public void addCorsMappings(CorsRegistry registry) {
+	            registry.addMapping("/**").allowedMethods("GET", "POST", "PUT", "DELETE").allowedOrigins("*")
+	                    .allowedHeaders("*");
+	        }
+		  };
+		}
+		@Override
+		public void run(String... args) throws Exception {
+			// TODO Auto-generated method stub
+			
+		}
+	}
+
+________________-------------________________________--------------------____________________________---------------------______________________________________________
+
+ANGULAR
++++++++
+
+app.module.ts
+*************
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import {RouterModule,Routes} from '@angular/router';
+import {HttpModule} from '@angular/http';
+import {FormsModule} from '@angular/forms';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { VehicleServiceService } from './vehicle-service.service';
+import { UserLoginComponent } from './components/user-login/user-login.component';
+import { SearchVehicleComponent } from './components/search-vehicle/search-vehicle.component';
+
+
+const appRoutes:Routes=[
+  {path: '',redirectTo: '/userLogin',pathMatch: 'full'},
+  {path:"userLogin",component:UserLoginComponent},
+  {path:"searchVehicle",component:SearchVehicleComponent}
+
+]
+@NgModule({
+  declarations: [
+    AppComponent,
+    UserLoginComponent,
+    SearchVehicleComponent,
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    FormsModule,
+    HttpModule,
+    RouterModule.forRoot(appRoutes)
+  ],
+  providers: [VehicleServiceService],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+
+app.component.html
+******************
+<div class="container">
+  <router-outlet></router-outlet>
+</div>
+
+angular.json
+************
+ "styles": [
+              "src/styles.css",
+              "node_modules/bootstrap/dist/css/bootstrap.min.css"   
+
+
+vehicleservice.ts
+*****************
+import { Injectable } from '@angular/core';
+import {Http,Response,RequestOptions,Headers} from '@angular/http';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/observable/throw';
+import { UserDetails } from './user-details';
+import { VehicleDetails } from './vehicle-details';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class VehicleServiceService {
+  private baseurl:string="http://localhost:8088/vehiclePortal";
+  private headers=new Headers({'content-Type':'Application/JSON'});
+  private options=new RequestOptions({headers:this.headers});
+  private s:UserDetails;
+
+  
+  
+  constructor(private _http:Http) { }
+
+  validateLogin(userid:number,userpassword:string){
+  return this._http.post(this.baseurl+'/userLogin/'+userid+'/'+userpassword,this.options).map((response:Response)=>response.json()).catch(this.errorHandler);
+}
+errorHandler(error:Response){
+  return Observable.throw(error ||"SERVER ERROR");
+}
+
+getModels(){
+  return this._http.get(this.baseurl+'/models',this.options).map((response:Response)=>response.json()).catch(this.errorHandler);
+
+}
+
+  search(modelline:string){
+   return this._http.post(this.baseurl+'/searchVehicle/'+modelline,this.options).map((response:Response)=>response.json()).catch(this.errorHandler);
+   }
+   
+}
+
+userdetails.ts
+**************
+export class UserDetails {
+    userid:number;
+    userpassword:string;
+    username:string;
+    useraddress:string;
+}
+
+vehicledetails.ts
+*****************
+export class VehicleDetails {
+    vin:number;
+    modelline:string;
+    modelyear:number;
+    interiorcolor:string;
+    exteriorcolor:string;
+    drivetrain:string;
+}
+
+userlogin.component.ts
+***********************
+import { Component, OnInit } from '@angular/core';
+import { UserDetails } from 'src/app/user-details';
+import {Router} from '@angular/router';
+import { VehicleServiceService } from 'src/app/vehicle-service.service';
+
+
+
+@Component({
+  selector: 'app-user-login',
+  templateUrl: './user-login.component.html',
+  styleUrls: ['./user-login.component.css']
+})
+export class UserLoginComponent implements OnInit {
+  private userdetails1=new UserDetails();
+
+  constructor(private _vehicleservice:VehicleServiceService,private _router:Router) { }
+
+  ngOnInit() {
+  }
+
+ loginUser(userid,userpassword){
+  {
+    this._vehicleservice.validateLogin(userid,userpassword).subscribe((data)=>
+    {
+      console.log(data);
+      if(data)
+      {
+        console.log(userid,userpassword);
+        console.log(this.userdetails1);
+              alert('Welcome ');
+              this._router.navigate(['/searchVehicle']);
+         }
+          else{
+              alert('InvalidCredential'); 
+         }
+    },(error)=>{
+      console.log(error);
+    }
+    );
+}}
+}
+
+userlogin.component.html
+************************
+<div class="container" >
+        <form class="form group">
+            <div class="form group">
+                    <thead align="center"><h1>User Login</h1></thead>
+                <label for="userid">Enter UserId</label>
+                <input type="text" name="userid" class="form-control" [(ngModel)]="userdetails1.userid" >
+            </div>
+            <div class="form-group">
+                <label for="userpassword">Enter Password</label>
+                <input type="password" name="userpassword" class="form-control"  [(ngModel)]="userdetails1.userpassword" >
+            </div>
+            <button (click)="loginUser(userdetails1.userid,userdetails1.userpassword)" class="btn btn-success">LOGIN</button>
+        </form>
+    </div>
+
+searchvehicle.component.ts
+**************************
+import { Component, OnInit } from '@angular/core';
+import {Router} from '@angular/router';
+import { VehicleServiceService } from 'src/app/vehicle-service.service';
+import { VehicleDetails } from 'src/app/vehicle-details';
+
+@Component({
+  selector: 'app-search-vehicle',
+  templateUrl: './search-vehicle.component.html',
+  styleUrls: ['./search-vehicle.component.css']
+})
+export class SearchVehicleComponent implements OnInit {
+private vehicledetails1=new VehicleDetails();
+private models:string;
+  constructor(private _vehicleservice:VehicleServiceService,private _router:Router) { }
+
+  ngOnInit() {
+    this._vehicleservice.getModels().subscribe((data)=>
+    {
+    console.log(data);
+    this.models=data;
+    });
+  }
+
+  display(event){
+    //alert(event.target.value);
+    this._vehicleservice.search(event.target.value).subscribe((data)=>
+    {
+    console.log(data);
+    this.vehicledetails1=data;
+    
+    });
+  }
+}
+
+searchvehicle.component.html
+*****************************
+
+
+<div class="container">
+        <form class="form group">
+            <div>
+                <h3 align="center" ><font color="blue">SEARCH YOUR MODEL</font></h3>
+                <br>
+                <br>
+                    <td>Search by Model</td> 
+                   <td> <select class="ddloption" (change)=display($event)>
+                        <option></option>
+                        <option *ngFor="let i of models">{{i}}</option>
+                        </select></td>
+            </div>
+<br>
+<br>
+    <table class="table table-striped">
+        <thead>
+<th>VIN</th>
+<TH>MODEL LINE</TH>
+<TH>MODEL YEAR</TH>
+<TH>INTERIOR COLOR</TH>
+<TH>EXTERIOR COLOR</TH>
+<TH>DRIVE TRAIN</TH>
+        </thead>
+        <tbody>
+            <tr *ngFor="let a of vehicledetails1">
+            <td>{{a.vin}}</td>
+            <td>{{a.modelline}}</td>
+            <td>{{a.modelyear}}</td>
+            <td>{{a.interiorcolor}}</td>
+            <td>{{a.exteriorcolor}}</td>
+            <td>{{a.drivertrain}}</td></tr>
+        </tbody>
+    </table>
+            </form>
+            </div>
+
+___________________________-------------------------------------______________________________-----------------------------------_________________________________________________
+
+MYSQL
++++++
+
+create database vehicle
+
+ 
+use vehicle
+
+
+
+
+
+create table TBL_USER(USER_ID int(5) primary key,USER_PASSWORD varchar(50) not null,USER_NAME varchar(100) not null,USER_ADDRESS varchar(100) not null)
+
+
+desc TBL_USER
+
+
+insert into TBL_USER VALUES(12345,'Y$UYT','CHRIS MAVERICK','CAR STREET,NY.');
+
+insert into TBL_USER  VALUES(24321,'QTWY$$','EDWARD JOHN','4th AVENUE,FL.');
+
+
+SELECT* FROM TBL_USER
+tbl_user
+
+
+
+create table TBL_VEHICLE(VIN varchar(17) primary key,MODEL_LINE varchar(50) not null,MODEL_YEAR int(4) not null,INTERIOR_COLOR varchar(25) not null,
+EXTERIOR_COLOR varchar(25) not null,DRIVE_TRAIN varchar(3) not null)
+
+
+DESC  TBL_VEHICLE
+
+
+insert into TBL_VEHICLE values('1VLDR87954A56421','ROUGE',2019,'CHARCOAL','WHITE','AWD')
+
+insert into TBL_VEHICLE values('1VLDR87954A56422','ROUGE',2018,'GREY','BLACK','FWD')
+
+insert into TBL_VEHICLE values('1VLDR87954A56423','KICKS',2019,'OLIVE','RED','4WD')
+
+insert into TBL_VEHICLE values('1VLDR87954A56424','ALTIMA',2019,'SILVER','GREY','AWD')
+
+insert into TBL_VEHICLE values('1VLDR87954A56425','MURANO',2018,'BROWN','BLACK','2WD')
+
+insert into TBL_VEHICLE values('1VLDR87954A56426','ROUGE',2017,'GREY','WHITE','FWD')
+
+insert into TBL_VEHICLE values('1VLDR87954A56427','MAXIMA',2018,'GREY','BLACK','AWD')
+
+insert into TBL_VEHICLE values('1VLDR87954A56428','KICKS',2018,'CHARCOAL','RED','2WD')
+
+insert into TBL_VEHICLE values('1VLDR87954A56429','ALTIMA',2018,'SILVER','WHITE','4WD')
+
+insert into TBL_VEHICLE values('1VLDR87954A56430','MURAN',2019,'BROWN','BLACK','2WD')
+
+
+SELECT*FROM TBL_VEHICLE
+
+===========================================================================================================================================================================================================================================================================================================================
